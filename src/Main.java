@@ -86,13 +86,13 @@ public class Main {
         path.add(last);
         for (int i = 0; i < adjMatrix.size(); i++)
             if (adjMatrix.get(last).get(i) > 0 && (i == first || !path.contains(i))) {
-                findCycles(adjMatrix, new LinkedHashSet<Integer>(path), i, first, set);
+                findCycles(adjMatrix, new LinkedHashSet<>(path), i, first, set);
             }
     }
     public static ArrayList<ArrayList<Integer>> findCycles(ArrayList<ArrayList<Integer>> adjMatrix) {
         ArrayList<LinkedHashSet<Integer>> set = new ArrayList<>();
         for (int i = 0; i < adjMatrix.size(); i++)
-            findCycles(adjMatrix, new LinkedHashSet<Integer>(), i, i, set);
+            findCycles(adjMatrix, new LinkedHashSet<>(), i, i, set);
         ArrayList<ArrayList<Integer>> fullList = new ArrayList<>();
         for (LinkedHashSet<Integer> cycle: set)
             fullList.add(new ArrayList<>(cycle));
