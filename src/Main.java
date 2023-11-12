@@ -7,19 +7,19 @@ import java.util.stream.IntStream;
 
 public class Main {
 
-    public static Vector<Vector<Integer>> readFile(String inputFile) {
+    public static ArrayList<ArrayList<Integer>> readFile(String inputFile) {
         try {
             Scanner matrixScanner = new Scanner(new File(inputFile));
             matrixScanner.useDelimiter(System.getProperty("line.separator"));
             Scanner rowScanner;
-            Vector<Vector<Integer>> matrix = new Vector<>();
+            ArrayList<ArrayList<Integer>> matrix = new ArrayList<>();
 
             //Import Cycle Set into 2d Vector
             while (matrixScanner.hasNextLine()) {
-                matrix.add(new Vector<>());
+                matrix.add(new ArrayList<>());
                 rowScanner = new Scanner(matrixScanner.next());
                 while (rowScanner.hasNextInt()) {
-                    matrix.lastElement().add(rowScanner.nextInt());
+                    matrix.get(matrix.size()-1).add(rowScanner.nextInt());
                 }
             }
             matrixScanner.close();
@@ -29,11 +29,11 @@ public class Main {
             return null;
         }
     }
-    public static void exportFile(Vector<Vector<Integer>> matrix, String outputName) {
+    public static void exportFile(ArrayList<ArrayList<Integer>> matrix, String outputName) {
         File output = new File(outputName);
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(output));
-            for (Vector<Integer> row : matrix) {
+            for (ArrayList<Integer> row : matrix) {
                 for (Integer i : row) writer.write(String.format("%c ", i+48));
                 writer.newLine();
             }
@@ -42,12 +42,12 @@ public class Main {
             System.out.println(e.getMessage());
         }
     }
-    public static Vector<Vector<Integer>> createMatrix(int size, int min, int max, double lambda, String outputName) {
+    public static ArrayList<ArrayList<Integer>> createMatrix(int size, int min, int max, double lambda, String outputName) {
         //initiate matrix
-        Vector<Vector<Integer>> output = new Vector<>(size);
+        ArrayList<ArrayList<Integer>> output = new ArrayList<>(size);
 
         for (int i = 0; i < size; i++) {
-            output.add(new Vector<>());
+            output.add(new ArrayList<>());
             //populate the list with nulls, setting the diagonals to 0
             for(int j = 0; j < size; j++) output.get(i).add(i == j ? 0 : -1);
         }
@@ -77,18 +77,19 @@ public class Main {
         return output;
     }
 
+
     public static void main(String[] args) {
         String matrixFileName = "inputMatrix.txt";
         String setFileName = "inputCycles.txt";
         String outputName = "outputCycles.txt";
 
-        Vector<Vector<Integer>> cycles = readFile(setFileName);
-        Vector<Vector<Integer>> adjMatrix = readFile(matrixFileName);
+        ArrayList<ArrayList<Integer>> cycles = readFile(setFileName);
+        ArrayList<ArrayList<Integer>> adjMatrix = readFile(matrixFileName);
 
         if (cycles != null && adjMatrix != null) {
 
             //Create Matrix (Size, min_val, max_val, sparsity, output file name)
-            createMatrix(3, 1, 9, 0, "matrix.txt");
+            adjMatrix = createMatrix(64, 1, 9, 0, "matrix.txt");
             //Create Cycle Set
 
             Instant start = Instant.now();
