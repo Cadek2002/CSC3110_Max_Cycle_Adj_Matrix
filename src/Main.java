@@ -88,7 +88,7 @@ public class Main {
         if (cycles != null && adjMatrix != null) {
 
             //Create Matrix (Size, min_val, max_val, sparsity, output file name)
-            createMatrix(64, 1, 9, .01, "matrix.txt");
+            createMatrix(3, 1, 9, 0, "matrix.txt");
             //Create Cycle Set
 
             Instant start = Instant.now();
