@@ -1,8 +1,10 @@
 import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
-import java.lang.Math;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Scanner;
 import java.util.stream.IntStream;
 
 public class Main {
@@ -58,7 +60,7 @@ public class Main {
 
         for (int i = 0; i < size; i++) {
             next = ( i+1 < size ? i+1 : 0);
-            output.get(sequence.get(i)).set(sequence.get(next), (int)(Math.random() * (max-min) * min));
+            output.get(sequence.get(i)).set(sequence.get(next), (int)(Math.random() * (max-min) + min));
         }
 
         int elements = (int)((size * (size-1)) * lambda);
@@ -76,26 +78,47 @@ public class Main {
         exportFile(output, outputName);
         return output;
     }
+    public static void findCycles(ArrayList<ArrayList<Integer>> adjMatrix, LinkedHashSet<Integer> path, int last, int first, ArrayList<LinkedHashSet<Integer>> set) {
+        if (last == first && path.size() > 1 && !set.contains(path)) {
+            set.add(path);
+            return;
+        }
+        path.add(last);
+        for (int i = 0; i < adjMatrix.size(); i++)
+            if (adjMatrix.get(last).get(i) > 0 && (i == first || !path.contains(i))) {
+                findCycles(adjMatrix, new LinkedHashSet<Integer>(path), i, first, set);
+            }
+    }
+    public static ArrayList<ArrayList<Integer>> findCycles(ArrayList<ArrayList<Integer>> adjMatrix) {
+        ArrayList<LinkedHashSet<Integer>> set = new ArrayList<>();
+        for (int i = 0; i < adjMatrix.size(); i++)
+            findCycles(adjMatrix, new LinkedHashSet<Integer>(), i, i, set);
+        ArrayList<ArrayList<Integer>> fullList = new ArrayList<>();
+        for (LinkedHashSet<Integer> cycle: set)
+            fullList.add(new ArrayList<>(cycle));
 
+        return fullList;
+    }
 
     public static void main(String[] args) {
         String matrixFileName = "inputMatrix.txt";
         String setFileName = "inputCycles.txt";
-        String outputName = "outputCycles.txt";
+
+        String outputName = "outputMatrix.txt";
 
         ArrayList<ArrayList<Integer>> cycles = readFile(setFileName);
         ArrayList<ArrayList<Integer>> adjMatrix = readFile(matrixFileName);
 
+        //GENERATES NEW MATRIX/CYCLES, if you want to keep a particular matrix comment theese out
+        //Create Matrix (Size, min_val, max_val, sparsity, output file name)
+        adjMatrix = createMatrix(9, 1, 9, .5, "matrix.txt");
+        //Create Cycle Set
+        cycles = findCycles(adjMatrix);
+        exportFile(cycles, "outCycles.txt");
+
         if (cycles != null && adjMatrix != null) {
-
-            //Create Matrix (Size, min_val, max_val, sparsity, output file name)
-            adjMatrix = createMatrix(64, 1, 9, 0, "matrix.txt");
-            //Create Cycle Set
-
             Instant start = Instant.now();
-            //CODE ALGORITHM HERE variables: cycles, adjMatrix both are Vector<Vector<Integer>>
-
-
+            //CODE ALGORITHM HERE variables: cycles, adjMatrix both are ArrayList<ArrayList<Integer>>
 
             //END ALGO CODE
             Instant end = Instant.now();
@@ -103,7 +126,7 @@ public class Main {
             System.out.printf("Algo Run Duration: %s Nanoseconds", Duration.between(start, end).getNano());
 
             //Export set into file
-            exportFile(cycles, outputName);
+            exportFile(adjMatrix, outputName);
         }
     }
 }
