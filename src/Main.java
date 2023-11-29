@@ -118,6 +118,154 @@ public class Main {
 
         return fullList;
     }
+    // Algorithm 1: Function to remove edges in the largest cycle from the adjacency matrix
+    public static void removeMax(ArrayList<ArrayList<Integer>> adjMatrix, ArrayList<ArrayList<Integer>> cycles) {
+        int sum, max = 0;
+        ArrayList<Integer> costList = new ArrayList<>();
+        ArrayList<Integer> maxCycleList = new ArrayList<>();
+
+        // Calculate the sum of each cycle and find the maximum
+        for (ArrayList<Integer> cycle : cycles) {
+            sum = 0;
+            for (int i = 0; i < cycle.size(); i++) {
+                int node1 = cycle.get(i);
+                int node2 = (i == cycle.size() - 1) ? cycle.get(0) : cycle.get(i + 1);
+                sum += adjMatrix.get(node1).get(node2);
+            }
+
+            if (sum > max) {
+                max = sum;
+            }
+            costList.add(sum);
+        }
+
+        // Identify the cycles with the maximum sum
+        for (int i = 0; i < costList.size(); i++) {
+            if (costList.get(i) == max) {
+                maxCycleList.add(i);
+            }
+        }
+
+        // Remove edges in the largest cycle from the adjacency matrix
+        if (!maxCycleList.isEmpty()) {
+            int maxCycleIndex = maxCycleList.get(0);
+            ArrayList<Integer> cycle = cycles.get(maxCycleIndex);
+
+            if (maxCycleList.size() == 1) {
+                for (int i = 0; i < cycle.size() - 1; i++) {
+                    int node = cycle.get(i);
+                    int nextNode = cycle.get(i + 1);
+                    adjMatrix.get(node).set(nextNode, -1);
+                }
+            } else {
+                for (int i = 1; i < maxCycleList.size(); i++) {
+                    int currentMaxCycleIndex = maxCycleList.get(i);
+                    ArrayList<Integer> currentCycle = cycles.get(currentMaxCycleIndex);
+
+                    for (int j = 0; j < currentCycle.size() - 1; j++) {
+                        int node = currentCycle.get(j);
+                        int nextNode = currentCycle.get(j + 1);
+                        adjMatrix.get(node).set(nextNode, -1);
+                    }
+                }
+            }
+        }
+        
+    }
+
+    //Algorithm 2
+    // Function to calculateCost
+    public static int calculateCost(ArrayList<Integer> cycle, ArrayList<ArrayList<Integer>> adjMatrix) {
+        int sum = 0;
+        for (int i = 0; i < cycle.size() - 1; i++) {
+            sum += adjMatrix.get(cycle.get(i)).get(cycle.get(i + 1));
+        }
+        sum += adjMatrix.get(cycle.get(cycle.size() - 1)).get(cycle.get(0));
+        return sum;
+    }
+    // Function to compareCycles
+    public static boolean compareCycles(int x, int y, ArrayList<ArrayList<Integer>> cycleList,
+                                        ArrayList<ArrayList<Integer>> m, int[] cache) {
+        if (cache[x] == 0) {
+            cache[x] = calculateCost(cycleList.get(x), m);
+        }
+
+        if (cache[y] == 0) {
+            cache[y] = calculateCost(cycleList.get(y), m);
+        }
+
+        return cache[x] > cache[y];
+    }
+
+    // Function to mergeSort
+    public static ArrayList<Integer> mergeSort(ArrayList<Integer> arr, int L, int R, ArrayList<ArrayList<Integer>> cycleList, ArrayList<ArrayList<Integer>> m, int[] cache) {
+        if (L == R) {
+            ArrayList<Integer> base = new ArrayList<>();
+            base.add(L);
+            return base;
+        }
+
+        int mid = (L + R) / 2;
+
+        ArrayList<Integer> lArr = mergeSort(arr, L, mid, cycleList, m, cache);
+        ArrayList<Integer> rArr = mergeSort(arr, mid + 1, R, cycleList, m, cache);
+
+        int i = 0, j = 0, k = 0;
+
+        ArrayList<Integer> sorted = new ArrayList<>(Collections.nCopies(lArr.size() + rArr.size(), 0));
+
+        while (i < lArr.size() && j < rArr.size()) {
+            if (compareCycles(lArr.get(i), rArr.get(j), cycleList, m, cache)) {
+                sorted.set(k, lArr.get(i));
+                i += 1;
+            } else {
+                sorted.set(k, rArr.get(j));
+                j += 1;
+            }
+            k += 1;
+        }
+
+        while (i < lArr.size()) {
+            sorted.set(k, lArr.get(i));
+            i += 1;
+            k += 1;
+        }
+
+        while (j < rArr.size()) {
+            sorted.set(k, rArr.get(j));
+            j += 1;
+            k += 1;
+        }
+
+        return sorted;
+    }
+
+    // Function to removeCycle
+    public static void removeCycle(ArrayList<Integer> cycle, ArrayList<ArrayList<Integer>> m) {
+        for (int i = 0; i < cycle.size() - 1; i++) {
+            m.get(cycle.get(i)).set(cycle.get(i + 1), -1);
+        }
+        m.get(cycle.get(cycle.size() - 1)).set(cycle.get(0), -1);
+    }
+
+    // Function to removeMaxByCost
+    public static ArrayList<ArrayList<Integer>> removeMaxByCost(ArrayList<ArrayList<Integer>> m, ArrayList<ArrayList<Integer>> cycleList) {
+    int[] cache = new int[cycleList.size()];
+    ArrayList<Integer> sorted = mergeSort(new ArrayList<>(IntStream.range(0, cycleList.size()).boxed().toList()), 0, cycleList.size() - 1, cycleList, m, cache);
+
+    int max = cache[sorted.get(0)];
+    removeCycle(cycleList.get(sorted.get(0)), m);
+
+    int i = 1;
+    while (i < sorted.size() && cache[sorted.get(i)] == max) {
+        removeCycle(cycleList.get(sorted.get(i)), m);
+        i += 1;
+    }
+
+    return m;
+}
+
+  
 
     public static void main(String[] args) {
         String matrixFileName = "inputMatrix.txt";
@@ -125,33 +273,68 @@ public class Main {
         String verticesFileName = "vertices.txt";
         String outputName = "outputMatrix.txt";
 
-
         ArrayList<Integer> vertices = readVertices(verticesFileName);
         ArrayList<ArrayList<Integer>> cycles = readFile(setFileName, vertices);
         ArrayList<ArrayList<Integer>> adjMatrix = readFile(matrixFileName, null);
 
-        //GENERATES NEW MATRIX/CYCLES, if you want to keep a particular matrix comment these out
-        //Create Matrix (Size, min_val, max_val, sparsity, output file name)
+    // GENERATES NEW MATRIX/CYCLES, if you want to keep a particular matrix comment these out
+    // Create Matrix (Size, min_val, max_val, sparsity, output file name)
         adjMatrix = createMatrix(9, 1, 9, .5, "matrix.txt");
-        //Create Cycle Set
+    // Create Cycle Set
         cycles = findCycles(adjMatrix);
         exportFile(cycles, "outCycles.txt", null);
 
         if (cycles != null && adjMatrix != null) {
             Instant start = Instant.now();
-            //CODE ALGORITHM HERE variables: cycles, adjMatrix both are ArrayList<ArrayList<Integer>>
 
-            for (ArrayList<Integer> cycle:cycles) {
-                for (int i : cycle) System.out.printf("%d ", i);
+            // Algorithm 1: Call the function to Remove edges in the largest cycle
+            removeMax(adjMatrix, cycles);
+            // Display the first algorithm's results
+            System.out.println("\nAlgorithm 1 Results:");
+            System.out.println("Updated Adjacency Matrix:");
+            for (ArrayList<Integer> row : adjMatrix) {
+                for (Integer i : row) System.out.printf("%d ", i);
                 System.out.println();
             }
+            System.out.println("\nCycles:");
+            for (ArrayList<Integer> cycle : cycles) {
+                System.out.println(cycle);
+            }
 
-            //END ALGO CODE
+            // Algorithm 2: call the function to Remove edges based on cost comparison
+            removeMaxByCost(adjMatrix, cycles);
+            // Display the second algorithm's results
+            System.out.println("\n\nAlgorithm 2 Results:");
+            System.out.println("Updated Adjacency Matrix:");
+            for (ArrayList<Integer> row : adjMatrix) {
+                for (Integer i : row) System.out.printf("%d ", i);
+                System.out.println();
+            }
+            System.out.println("\nCycles:");
+            for (ArrayList<Integer> cycle : cycles) {
+                System.out.println(cycle);
+                
+            }
+
+            // Print the updated adjacency matrix
+            // System.out.println("Updated Adjacency Matrix:");
+            // for (ArrayList<Integer> row : adjMatrix) {
+            //     for (Integer i : row) System.out.printf("%d ", i);
+            //     System.out.println();
+            // }
+
+            // //System.out.println("Cycles:");
+            // for (ArrayList<Integer> cycle : cycles) {
+            //     System.out.println(cycle);
+            // }
+
+           
+            // END ALGO CODE
             Instant end = Instant.now();
 
             System.out.printf("Algo Run Duration: %s Nanoseconds", Duration.between(start, end).getNano());
 
-            //Export updated matrix into file
+            // Export updated matrix into file
             exportFile(adjMatrix, outputName, null);
         }
     }
