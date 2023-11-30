@@ -109,12 +109,28 @@ public class Alg2 {
     }
 
     private int calculateCost(ArrayList<Integer> cycle, ArrayList<ArrayList<Integer>> costMatrix) {
-        int sum = 0;
-        //System.out.printf("%n%s%n", cycle.toString());
+        return calculateCost(cycle, costMatrix, false);
+    }
 
-        for (int i = 0; i < cycle.size() - 1; i++) {
-            sum += costMatrix.get(cycle.get(i)).get(cycle.get(i+1));
+    private int calculateCost(ArrayList<Integer> cycle, ArrayList<ArrayList<Integer>> costMatrix, boolean printDebug) {
+        int sum = 0;
+        if(printDebug)
+            System.out.printf("%s%n", cycle.toString());
+
+        for (int i = 0; i < cycle.size(); i++) {
+            int j = (i+1) % cycle.size();
+            int cost = costMatrix.get(cycle.get(i)).get(cycle.get(j));
+            if(printDebug){
+                if (i == 0)
+                    System.out.print("[");
+                else
+                    System.out.print(", ");
+                System.out.printf("%d", cost);
+            }
+            sum += cost;
         }
+        if(printDebug)
+            System.out.println("]");
         return sum;
     }
 
