@@ -126,7 +126,7 @@ public class Main {
         String outputName = "outputMatrix.txt";
 
 
-        ArrayList<Integer> vertices = readVertices(verticesFileName);
+        ArrayList<Integer> vertices = null;
         ArrayList<ArrayList<Integer>> cycles = readFile(setFileName, vertices);
         ArrayList<ArrayList<Integer>> adjMatrix = readFile(matrixFileName, null);
 
