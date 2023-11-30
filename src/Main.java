@@ -119,6 +119,19 @@ public class Main {
         return fullList;
     }
 
+    public static void printArrayListMatrix(ArrayList<ArrayList<Integer>> list){
+        for (int i = 0; i < list.size(); i++){ //matrix should be square
+            for (int j = 0; j < list.get(i).size(); j++){
+                if (j == 0)
+                    System.out.print("[");
+                else
+                    System.out.print(", ");
+                System.out.printf("%2s", list.get(i).get(j));
+            }
+            System.out.println("]");
+        }
+    }
+
     public static void main(String[] args) {
         String matrixFileName = "inputMatrix.txt";
         String setFileName = "inputCycles.txt";
