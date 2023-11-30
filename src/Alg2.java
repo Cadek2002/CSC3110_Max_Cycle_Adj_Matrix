@@ -22,8 +22,11 @@ public class Alg2 {
         for (ArrayList<Integer> cycle : sorted) {
             int cycleHash = Math.abs(cycle.hashCode());
             int cost = getFromCache(cycleHash);
-            if (cost == maxCost)
+            if (cost == maxCost) {
+                System.out.printf("Removing cycle: %s%n", cycle);
+                System.out.printf("Cost: %d%n", cost);
                 removeCycle(cycle, costMatrix);
+            }
             else
                 break;
         }
