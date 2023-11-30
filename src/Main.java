@@ -119,6 +119,19 @@ public class Main {
         return fullList;
     }
 
+    public static void printArrayListMatrix(ArrayList<ArrayList<Integer>> list){
+        for (int i = 0; i < list.size(); i++){ //matrix should be square
+            for (int j = 0; j < list.get(i).size(); j++){
+                if (j == 0)
+                    System.out.print("[");
+                else
+                    System.out.print(", ");
+                System.out.printf("%2s", list.get(i).get(j));
+            }
+            System.out.println("]");
+        }
+    }
+
     public static void main(String[] args) {
         String matrixFileName = "inputMatrix.txt";
         String setFileName = "inputCycles.txt";
@@ -126,7 +139,7 @@ public class Main {
         String outputName = "outputMatrix.txt";
 
 
-        ArrayList<Integer> vertices = readVertices(verticesFileName);
+        ArrayList<Integer> vertices = null;
         ArrayList<ArrayList<Integer>> cycles = readFile(setFileName, vertices);
         ArrayList<ArrayList<Integer>> adjMatrix = readFile(matrixFileName, null);
 
@@ -149,10 +162,20 @@ public class Main {
             //END ALGO CODE
             Instant end = Instant.now();
 
-            System.out.printf("Algo Run Duration: %s Nanoseconds", Duration.between(start, end).getNano());
+            System.out.printf("Algo Run Duration: %s Nanoseconds%n", Duration.between(start, end).getNano());
 
             //Export updated matrix into file
             exportFile(adjMatrix, outputName, null);
         }
+
+        System.out.println("Adjacency matrix before removing largest cycle(s)");
+        printArrayListMatrix(adjMatrix);
+
+        Alg2 alg2 = new Alg2();
+        alg2.removeLargestCycle(cycles, adjMatrix);
+
+        System.out.println();
+        System.out.println("Adjacency matrix after removing largest cycle(s)");
+        printArrayListMatrix(adjMatrix);
     }
 }
