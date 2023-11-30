@@ -167,5 +167,15 @@ public class Main {
             //Export updated matrix into file
             exportFile(adjMatrix, outputName, null);
         }
+
+        System.out.println("Adjacency matrix before removing largest cycle(s)");
+        printArrayListMatrix(adjMatrix);
+
+        Alg2 alg2 = new Alg2();
+        alg2.removeLargestCycle(cycles, adjMatrix);
+
+        System.out.println();
+        System.out.println("Adjacency matrix after removing largest cycle(s)");
+        printArrayListMatrix(adjMatrix);
     }
 }
