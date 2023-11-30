@@ -149,7 +149,7 @@ public class Main {
             //END ALGO CODE
             Instant end = Instant.now();
 
-            System.out.printf("Algo Run Duration: %s Nanoseconds", Duration.between(start, end).getNano());
+            System.out.printf("Algo Run Duration: %s Nanoseconds%n", Duration.between(start, end).getNano());
 
             //Export updated matrix into file
             exportFile(adjMatrix, outputName, null);
